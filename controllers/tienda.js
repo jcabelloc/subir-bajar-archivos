@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const Producto = require('../models/producto');
 const Pedido = require('../models/pedido');
 
@@ -142,10 +145,30 @@ exports.getPedidos = (req, res, next) => {
 };
 
 
-exports.getCheckout = (req, res, next) => {
-  res.render('tienda/checkout', {
-    path: '/checkout',
-    titulo: 'Checkout',
-  });
-}; 
-
+exports.getComprobante = (req, res, next) => {
+  const idPedido = req.params.idPedido;
+  Pedido.findById(idPedido)
+    .then(pedido => {
+      if (!pedido) {
+        return next(new Error('No se encontro el pedido'));
+      }
+      if (pedido.usuario.idUsuario.toString() !== req.usuario._id.toString()) {
+        return next(new Error('No Autorizado'));
+      }
+      const nombreComprobante = 'comprobante-' + idPedido + '.pdf';
+      // const nombreComprobante = 'comprobante-' + '.pdf';
+      const rutaComprobante = path.join('data', 'comprobantes', nombreComprobante);
+      fs.readFile(rutaComprobante, (err, data) => {
+        if (err) {
+          return next(err);
+        }
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader(
+          'Content-Disposition',
+          'inline; filename="' + nombreComprobante + '"'
+        );
+        res.send(data);
+      });
+    })
+    .catch(err => next(err));
+};
