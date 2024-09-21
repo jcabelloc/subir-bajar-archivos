@@ -33,11 +33,33 @@ const csrfProtection = csrf();
 app.use(flash());
 
 
+const fileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'imagenes');
+  },
+  filename: (req, file, cb) => {
+    cb(null, new Date().toISOString() + '-' + file.originalname);
+  }
+});
+
+const fileFilter = (req, file, cb) => {
+  if (
+    file.mimetype === 'image/png' ||
+    file.mimetype === 'image/jpg' ||
+    file.mimetype === 'image/jpeg'
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+
+
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(multer({ dest: 'imagenes' }).single('imagen'));
+app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('imagen'));
 
 
 app.use(express.static(path.join(raizDir, 'public')));
