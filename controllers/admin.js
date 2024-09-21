@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
 
+const fileHelper = require('../utils/file');
+
+
 const { validationResult } = require('express-validator');
 
 const Producto = require('../models/producto');
@@ -148,6 +151,7 @@ exports.postEditarProducto = (req, res, next) => {
       producto.precio = precio;
       producto.descripcion = descripcion;
       if (imagen) {
+        fileHelper.deleteFile(producto.urlImagen);
         producto.urlImagen = imagen.path;
       }
       return producto.save();
@@ -186,7 +190,14 @@ exports.getProductos = (req, res, next) => {
 
 exports.postEliminarProducto = (req, res, next) => {
   const idProducto = req.body.idProducto;
-  Producto.deleteOne({ _id: idProducto, idUsuario: req.usuario._id })
+  Producto.findById(idProducto)
+    .then(producto => {
+      if (!producto) {
+        return next(new Error('Producto no encontrado'));
+      }
+      fileHelper.deleteFile(producto.urlImagen);
+      return   Producto.deleteOne({ _id: idProducto, idUsuario: req.usuario._id });
+    })
     .then(() => {
       console.log('PRODUCTO ELIMINADO');
       res.redirect('/admin/productos');
@@ -196,4 +207,5 @@ exports.postEliminarProducto = (req, res, next) => {
       error.httpStatusCode = 500;
       return next(error);
     });
+
 }; 
