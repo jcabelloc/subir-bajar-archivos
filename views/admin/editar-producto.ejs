@@ -10,7 +10,7 @@
         <% if (mensajeError) { %>
             <div class="user-message user-message--error"><%= mensajeError %></div>
         <% } %>
-        <form class="product-form" action="/admin/<% if (modoEdicion) { %>editar-producto<% } else { %>crear-producto<% } %>" method="POST">
+        <form class="product-form" action="/admin/<% if (modoEdicion) { %>editar-producto<% } else { %>crear-producto<% } %>" method="POST" enctype="multipart/form-data">
             <div class="form-control">
                 <label for="nombre">Nombre</label>
                 <input 
@@ -20,6 +20,7 @@
                     id="nombre" 
                     value="<% if (modoEdicion || tieneError) { %><%= producto.nombre %><% } %>">
             </div>
+            <!--
             <div class="form-control">
                 <label for="urlImagen">URL Imagen</label>
                 <input 
@@ -28,7 +29,13 @@
                     name="urlImagen" 
                     id="urlImagen" 
                     value="<% if (modoEdicion || tieneError) { %><%= producto.urlImagen %><% } %>">
-            </div>
+            </div>-->
+            <div class="form-control">
+                <label for="imagen">Imagen</label>
+                <input 
+                    type="file" 
+                    name="imagen" 
+                    id="imagen" >
             <div class="form-control">
                 <label for="precio">Precio</label>
                 <input 

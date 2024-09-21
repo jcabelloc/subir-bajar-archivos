@@ -17,7 +17,9 @@ exports.getCrearProducto = (req, res, next) => {
 
 exports.postCrearProducto = (req, res, next) => {
   const nombre = req.body.nombre;
-  const urlImagen = req.body.urlImagen;
+  //const urlImagen = req.body.urlImagen;
+  const urlImagen = req.file;
+  console.log(urlImagen)
   const precio = req.body.precio;
   const descripcion = req.body.descripcion;
   const errors = validationResult(req);
