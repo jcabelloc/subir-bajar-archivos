@@ -1,6 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
+const PDFDocument = require('pdfkit');
+
+
 const Producto = require('../models/producto');
 const Pedido = require('../models/pedido');
 
@@ -170,13 +173,46 @@ exports.getComprobante = (req, res, next) => {
         );
         res.send(data);
       });*/
+      /*
       const file = fs.createReadStream(rutaComprobante);
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader(
         'Content-Disposition',
         'inline; filename="' + nombreComprobante + '"'
       );
-      file.pipe(res);
+      file.pipe(res); */
+
+      const pdfDoc = new PDFDocument();
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader(
+        'Content-Disposition',
+        'inline; filename="' + nombreComprobante + '"'
+      );
+      pdfDoc.pipe(fs.createWriteStream(rutaComprobante));
+      pdfDoc.pipe(res);
+
+      pdfDoc.fontSize(26).text('Comprobante', {
+        underline: true
+      });
+      pdfDoc.fontSize(14).text('---------------------------------------');
+      let precioTotal = 0;
+      pedido.productos.forEach(prod => {
+        precioTotal += prod.cantidad * prod.producto.precio;
+        pdfDoc
+          .fontSize(14)
+          .text(
+            prod.producto.nombre +
+              ' - ' +
+              prod.cantidad +
+              ' x ' +
+              'S/' +
+              prod.producto.precio
+          );
+      });
+      pdfDoc.text('---------------------------------------');
+      pdfDoc.fontSize(20).text('Precio Total: S/' + precioTotal);
+
+      pdfDoc.end();
     })
     .catch(err => next(err));
 };
