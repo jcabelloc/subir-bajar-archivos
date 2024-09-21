@@ -63,6 +63,9 @@ app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('imagen'
 
 
 app.use(express.static(path.join(raizDir, 'public')));
+app.use('/imagenes', express.static(path.join(__dirname, 'imagenes')));
+
+
 app.use(session({ secret: 'algo muy secreto', resave: false, saveUninitialized: false, store: store }));
 
 app.use(csrfProtection);
@@ -105,6 +108,7 @@ app.use(errorController.get404);
 app.use((error, req, res, next) => {
   // res.status(error.httpStatusCode).render(...);
   // res.redirect('/500');
+  console.log(error)
   res.status(500).render('500', {
     titulo: 'Error!',
     path: '/500',
